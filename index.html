@@ -508,7 +508,7 @@
       <div class="field">
         <div class="range-header">
           <label for="midpoint">중간 색상 위치</label>
-          <span id="midValue">60%</span>
+          <span id="midValue">50%</span>
         </div>
 
         <input
@@ -516,7 +516,7 @@
           type="range"
           min="5"
           max="95"
-          value="60"
+          value="50"
         >
       </div>
 
@@ -1026,8 +1026,8 @@
       setColor(middleColor, middleHex, "#000000");
       setColor(endColor, endHex, "#a90000");
 
-      midpointInput.value = "60";
-      midValue.textContent = "60%";
+      midpointInput.value = "50";
+      midValue.textContent = "50%";
       skipSpaces.checked = true;
 
       generateGradient();
