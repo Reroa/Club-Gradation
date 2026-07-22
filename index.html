@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+  <title>Brawl Gradient Generator</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 40px 16px;
+      background: #0d0f14;
+      color: #f4f6fb;
+      font-family:
+        Pretendard,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    }
+
+    .app {
+      width: min(760px, 100%);
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+    }
+
+    .description {
+      margin: 0 0 28px;
+      color: #999fad;
+      line-height: 1.6;
+    }
+
+    .card {
+      padding: 22px;
+      margin-bottom: 18px;
+      border: 1px solid #292d38;
+      border-radius: 18px;
+      background: #171a21;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    .field:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 9px;
+      color: #c8ccd6;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+      font: inherit;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      border: 1px solid #333846;
+      border-radius: 11px;
+      outline: none;
+      background: #0f1117;
+      color: #ffffff;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"] {
+      height: 46px;
+      padding: 0 14px;
+    }
+
+    textarea {
+      min-height: 120px;
+      padding: 14px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus {
+      border-color: #6d76ff;
+    }
+
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .color-box {
+      padding: 12px;
+      border: 1px solid #303542;
+      border-radius: 12px;
+      background: #101218;
+    }
+
+    .color-box label {
+      margin-bottom: 8px;
+    }
+
+    .color-input-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    input[type="color"] {
+      width: 42px;
+      height: 38px;
+      padding: 0;
+      border: 0;
+      border-radius: 8px;
+      background: none;
+      cursor: pointer;
+    }
+
+    .hex-input {
+      min-width: 0;
+      height: 38px !important;
+      padding: 0 9px !important;
+      font-family: monospace;
+    }
+
+    .range-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    #midValue {
+      color: #8f96ff;
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .check-row label {
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      padding: 11px 16px;
+      border: 1px solid #353a47;
+      border-radius: 10px;
+      background: #242832;
+      color: #ffffff;
+      font-weight: 700;
+      cursor: pointer;
+      transition:
+        transform 0.15s,
+        background 0.15s;
+    }
+
+    button:hover {
+      background: #303541;
+      transform: translateY(-1px);
+    }
+
+    button.primary {
+      border-color: #6871ff;
+      background: #5963f3;
+    }
+
+    button.primary:hover {
+      background: #6871ff;
+    }
+
+    .preview {
+      min-height: 100px;
+      padding: 20px;
+      overflow-wrap: anywhere;
+      border: 1px solid #303542;
+      border-radius: 12px;
+      background: #090b0f;
+      font-size: 25px;
+      font-weight: 800;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 9px;
+    }
+
+    .output-header label {
+      margin: 0;
+    }
+
+    .stats {
+      margin-top: 9px;
+      color: #8f95a4;
+      font-size: 13px;
+    }
+
+    .message {
+      min-height: 22px;
+      margin-top: 10px;
+      color: #75e2a6;
+      font-size: 14px;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding-top: 24px;
+      }
+
+      h1 {
+        font-size: 25px;
+      }
+
+      .color-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .preview {
+        font-size: 21px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <h1>Brawl Gradient Generator</h1>
+
+    <p class="description">
+      브롤스타즈 색상 태그 형식으로 글자별 그라데이션 코드를 생성합니다.
+    </p>
+
+    <section class="card">
+      <div class="field">
+        <label for="prefix">그라데이션을 적용하지 않을 앞부분</label>
+        <input
+          id="prefix"
+          type="text"
+          value="Discord: "
+          placeholder="예: Discord: "
+        >
+      </div>
+
+      <div class="field">
+        <label for="gradientText">그라데이션을 적용할 텍스트</label>
+        <textarea
+          id="gradientText"
+          placeholder="그라데이션 텍스트를 입력하세요."
+        >.gg/krbrawl</textarea>
+      </div>
+
+      <div class="field">
+        <label>그라데이션 색상</label>
+
+        <div class="color-grid">
+          <div class="color-box">
+            <label for="startColor">시작 색상</label>
+
+            <div class="color-input-row">
+              <input id="startColor" type="color" value="#d40000">
+              <input
+                id="startHex"
+                class="hex-input"
+                type="text"
+                value="#d40000"
+                maxlength="7"
+              >
+            </div>
+          </div>
+
+          <div class="color-box">
+            <label for="middleColor">중간 색상</label>
+
+            <div class="color-input-row">
+              <input id="middleColor" type="color" value="#000000">
+              <input
+                id="middleHex"
+                class="hex-input"
+                type="text"
+                value="#000000"
+                maxlength="7"
+              >
+            </div>
+          </div>
+
+          <div class="color-box">
+            <label for="endColor">끝 색상</label>
+
+            <div class="color-input-row">
+              <input id="endColor" type="color" value="#a90000">
+              <input
+                id="endHex"
+                class="hex-input"
+                type="text"
+                value="#a90000"
+                maxlength="7"
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="range-header">
+          <label for="midpoint">중간 색상 위치</label>
+          <span id="midValue">60%</span>
+        </div>
+
+        <input
+          id="midpoint"
+          type="range"
+          min="5"
+          max="95"
+          value="60"
+        >
+      </div>
+
+      <div class="field check-row">
+        <input id="skipSpaces" type="checkbox" checked>
+        <label for="skipSpaces">
+          공백 앞에는 색상 코드를 넣지 않기
+        </label>
+      </div>
+
+      <div class="button-row">
+        <button id="sampleButton" type="button">
+          예시 불러오기
+        </button>
+
+        <button id="swapButton" type="button">
+          시작·끝 색상 교체
+        </button>
+
+        <button id="resetButton" type="button">
+          초기화
+        </button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="field">
+        <label>미리보기</label>
+        <div id="preview" class="preview"></div>
+      </div>
+
+      <div class="field">
+        <div class="output-header">
+          <label for="output">생성된 코드</label>
+
+          <button id="copyButton" class="primary" type="button">
+            복사
+          </button>
+        </div>
+
+        <textarea id="output" readonly></textarea>
+
+        <div id="stats" class="stats"></div>
+        <div id="message" class="message"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const prefixInput = document.getElementById("prefix");
+    const textInput = document.getElementById("gradientText");
+
+    const startColor = document.getElementById("startColor");
+    const middleColor = document.getElementById("middleColor");
+    const endColor = document.getElementById("endColor");
+
+    const startHex = document.getElementById("startHex");
+    const middleHex = document.getElementById("middleHex");
+    const endHex = document.getElementById("endHex");
+
+    const midpointInput = document.getElementById("midpoint");
+    const midValue = document.getElementById("midValue");
+    const skipSpaces = document.getElementById("skipSpaces");
+
+    const preview = document.getElementById("preview");
+    const output = document.getElementById("output");
+    const stats = document.getElementById("stats");
+    const message = document.getElementById("message");
+
+    const copyButton = document.getElementById("copyButton");
+    const sampleButton = document.getElementById("sampleButton");
+    const swapButton = document.getElementById("swapButton");
+    const resetButton = document.getElementById("resetButton");
+
+    function normalizeHex(value) {
+      let hex = value.trim().replace("#", "");
+
+      if (/^[0-9a-fA-F]{3}$/.test(hex)) {
+        hex = hex
+          .split("")
+          .map(character => character + character)
+          .join("");
+      }
+
+      if (!/^[0-9a-fA-F]{6}$/.test(hex)) {
+        return null;
+      }
+
+      return "#" + hex.toLowerCase();
+    }
+
+    function hexToRgb(hex) {
+      const normalized = normalizeHex(hex);
+
+      if (!normalized) {
+        return { r: 0, g: 0, b: 0 };
+      }
+
+      return {
+        r: parseInt(normalized.slice(1, 3), 16),
+        g: parseInt(normalized.slice(3, 5), 16),
+        b: parseInt(normalized.slice(5, 7), 16)
+      };
+    }
+
+    function rgbToHex({ r, g, b }) {
+      const toHex = value => {
+        return Math.round(value)
+          .toString(16)
+          .padStart(2, "0");
+      };
+
+      return `${toHex(r)}${toHex(g)}${toHex(b)}`;
+    }
+
+    function interpolateColor(colorA, colorB, amount) {
+      return {
+        r: colorA.r + (colorB.r - colorA.r) * amount,
+        g: colorA.g + (colorB.g - colorA.g) * amount,
+        b: colorA.b + (colorB.b - colorA.b) * amount
+      };
+    }
+
+    function getGradientColor(position) {
+      const start = hexToRgb(startColor.value);
+      const middle = hexToRgb(middleColor.value);
+      const end = hexToRgb(endColor.value);
+
+      const midpoint = Number(midpointInput.value) / 100;
+
+      if (position <= midpoint) {
+        const localPosition =
+          midpoint === 0 ? 0 : position / midpoint;
+
+        return interpolateColor(start, middle, localPosition);
+      }
+
+      const localPosition =
+        midpoint === 1
+          ? 1
+          : (position - midpoint) / (1 - midpoint);
+
+      return interpolateColor(middle, end, localPosition);
+    }
+
+    function generateGradient() {
+      const prefix = prefixInput.value;
+      const characters = Array.from(textInput.value);
+
+      const colorableCharacters = characters.filter(
+        character => character !== "\n"
+      );
+
+      const total = colorableCharacters.length;
+
+      let colorIndex = 0;
+      let generated = prefix;
+
+      preview.replaceChildren();
+      preview.append(document.createTextNode(prefix));
+
+      for (const character of characters) {
+        if (character === "\n") {
+          generated += "\n";
+          preview.append(document.createElement("br"));
+          continue;
+        }
+
+        const position =
+          total <= 1 ? 0 : colorIndex / (total - 1);
+
+        const color = rgbToHex(
+          getGradientColor(position)
+        );
+
+        const isSpace =
+          character === " " || character === "\t";
+
+        if (!(skipSpaces.checked && isSpace)) {
+          generated += `<c${color}>`;
+        }
+
+        generated += character;
+
+        const span = document.createElement("span");
+        span.style.color = `#${color}`;
+        span.textContent = character;
+        preview.append(span);
+
+        colorIndex++;
+      }
+
+      if (total > 0) {
+        generated += "</c>";
+      }
+
+      output.value = generated;
+
+      stats.textContent =
+        `텍스트 ${total}자 · 최종 코드 ${generated.length}자`;
+
+      message.textContent = "";
+    }
+
+    function connectColorInputs(colorPicker, hexInput) {
+      colorPicker.addEventListener("input", () => {
+        hexInput.value = colorPicker.value;
+        generateGradient();
+      });
+
+      hexInput.addEventListener("input", () => {
+        const normalized = normalizeHex(hexInput.value);
+
+        if (normalized) {
+          colorPicker.value = normalized;
+          generateGradient();
+        }
+      });
+
+      hexInput.addEventListener("blur", () => {
+        const normalized = normalizeHex(hexInput.value);
+
+        if (normalized) {
+          hexInput.value = normalized;
+        } else {
+          hexInput.value = colorPicker.value;
+        }
+
+        generateGradient();
+      });
+    }
+
+    async function copyOutput() {
+      if (!output.value) {
+        message.textContent = "복사할 코드가 없습니다.";
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(output.value);
+        message.textContent = "코드를 클립보드에 복사했습니다.";
+      } catch {
+        output.select();
+        document.execCommand("copy");
+        message.textContent = "코드를 클립보드에 복사했습니다.";
+      }
+    }
+
+    function loadSample() {
+      prefixInput.value = "Discord: ";
+      textInput.value = ".gg/krbrawl";
+
+      startColor.value = "#d40000";
+      middleColor.value = "#000000";
+      endColor.value = "#a90000";
+
+      startHex.value = "#d40000";
+      middleHex.value = "#000000";
+      endHex.value = "#a90000";
+
+      midpointInput.value = "60";
+      midValue.textContent = "60%";
+      skipSpaces.checked = true;
+
+      generateGradient();
+    }
+
+    function swapColors() {
+      const oldStart = startColor.value;
+      const oldEnd = endColor.value;
+
+      startColor.value = oldEnd;
+      endColor.value = oldStart;
+
+      startHex.value = oldEnd;
+      endHex.value = oldStart;
+
+      generateGradient();
+    }
+
+    function resetGenerator() {
+      prefixInput.value = "";
+      textInput.value = "";
+
+      startColor.value = "#ff0000";
+      middleColor.value = "#000000";
+      endColor.value = "#ffff00";
+
+      startHex.value = "#ff0000";
+      middleHex.value = "#000000";
+      endHex.value = "#ffff00";
+
+      midpointInput.value = "50";
+      midValue.textContent = "50%";
+      skipSpaces.checked = true;
+
+      generateGradient();
+    }
+
+    connectColorInputs(startColor, startHex);
+    connectColorInputs(middleColor, middleHex);
+    connectColorInputs(endColor, endHex);
+
+    prefixInput.addEventListener("input", generateGradient);
+    textInput.addEventListener("input", generateGradient);
+    skipSpaces.addEventListener("change", generateGradient);
+
+    midpointInput.addEventListener("input", () => {
+      midValue.textContent = midpointInput.value + "%";
+      generateGradient();
+    });
+
+    copyButton.addEventListener("click", copyOutput);
+    sampleButton.addEventListener("click", loadSample);
+    swapButton.addEventListener("click", swapColors);
+    resetButton.addEventListener("click", resetGenerator);
+
+    generateGradient();
+  </script>
+</body>
+</html>
